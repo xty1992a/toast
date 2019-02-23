@@ -1,0 +1,125 @@
+@import "./icon.css";
+
+.x-toast {
+  &.toast-show {
+    .modal {
+      opacity: 1;
+    }
+
+    .center {
+      top: 50%;
+    }
+  }
+
+  .center {
+    transition: top .3s;
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    color: #fff;
+    max-width: 70%;
+    font-size: 14px;
+    border-radius: 4px;
+    line-height: 1;
+    word-break: break-all;
+    align-items: center;
+    box-sizing: content-box;
+    transform: translate3d(-50%, -50%, 0);
+    background-color: rgba(50, 50, 51, .88);
+    width: fit-content;
+
+    .toast-text {
+      text-align: center;
+      padding: 8px 12px;
+      min-width: 96px;
+      line-height: 20px;
+    }
+
+    .toast-with-icon {
+      width: 90px;
+      padding: 15px;
+      height: 90px;
+
+      .toast-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px auto;
+      }
+
+      .iconfont {
+        font-size: 60px;
+      }
+
+      .toast-message {
+        text-align: center;
+        line-height: 20px;
+      }
+    }
+
+    .spinner {
+      z-index: 0;
+      font-size: 0;
+      line-height: 0;
+      position: relative;
+      vertical-align: middle;
+
+      .van-loading__spinner {
+        z-index: -1;
+        width: 36px;
+        height: 36px;
+        position: relative;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: van-rotate 2s linear infinite;
+      }
+
+      circle {
+        stroke: currentColor;
+        stroke-width: 3;
+        stroke-linecap: round;
+        animation: circular 1.5s ease-in-out infinite;
+      }
+    }
+  }
+
+  .modal {
+    transition: .3s;
+    background-color: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    bottom: 0;
+    opacity: 0;
+    right: 0;
+    top: 0;
+    left: 0;
+  }
+}
+
+// region animation
+@keyframes van-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes circular {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -40;
+  }
+  100% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -120;
+  }
+}
+
+// endregion
