@@ -7,10 +7,11 @@ const merge = require('webpack-merge');
 const root = p => path.join(__dirname, '..', p);
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const Uglify = require('uglifyjs-webpack-plugin');
 
 module.exports = merge(base, {
   mode: 'production',
-  entry: root('src/package/main.js'),
+  entry: root('src/package/main.ts'),
   output: {
 	path: path.resolve(__dirname, '../lib'),
 	filename: 'toast.js',
@@ -23,6 +24,15 @@ module.exports = merge(base, {
   performance: false,
   optimization: {
 	minimize: true,
+	minimizer: [
+	  new Uglify({
+		uglifyOptions: {
+		  compress: {
+			drop_console: true,
+		  },
+		},
+	  }),
+	],
   },
   plugins: [
 	// new BundleAnalyzerPlugin(),

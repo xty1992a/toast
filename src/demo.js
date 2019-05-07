@@ -1,21 +1,25 @@
-// import Toast from './package/main'
+// import Toast from '../lib/toast'
+// import '../lib/toast.css'
+import Toast from './package/main.ts'
 
 const $ = e => document.querySelector(e);
 
 $('#btn').addEventListener('click', function () {
-  window.Toast('hello world')
+  Toast('hello world')
 });
 $('#delay').addEventListener('click', function () {
-  let t = Toast.loading({
+  Toast({
 	message: 'hello world',
-	duration: 0,
+	duration: 4000,
+  });
+});
+$('#modal').addEventListener('click', function () {
+  Toast({
+	message: 'hello world',
 	mask: true,
   });
-
-  setTimeout(() => {
-	// t.clear();
-  }, 1000)
 });
+
 $('#success').addEventListener('click', function () {
   Toast.success('hello world')
 });
@@ -23,13 +27,12 @@ $('#error').addEventListener('click', function () {
   Toast.error('hello world')
 });
 $('#loading').addEventListener('click', function () {
-  Toast.loading('hello world')
+  const t = Toast.loading('hello world');
+  setTimeout(() => {
+	t.clear();
+  }, 1000)
 });
-$('#modal').addEventListener('click', function () {
-  Toast.loading({
-	type: 'hello world',
-	mask: true,
-  })
-});
-// $('#loading').addEventListener('click', function () {});
 
+$('#clearAll').addEventListener('click', function () {
+  Toast.clearAll();
+});

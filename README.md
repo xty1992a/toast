@@ -22,13 +22,16 @@ import '@reabuck/toast/lib/toast.css'
 ### 使用
 ##### 一般用法
 ```javascript
-  const toast = Toast(option);
+  const toast = Toast(ToastOption);
+
+  // toast.d.ts
+  type ToastOption = string | managerType
  ```
- option:
+ managerType:
 
  属性|类型|默认值|描述
  --: | --: | --: | --:
- message|String|undefined|文字
+ message|String|''|文字
  type|String|'text'|类型
  duration|Number|2000|延时,0表示永不消失
  mask|Boolean|false|是否有背景浮层
@@ -47,6 +50,8 @@ toast:
  别名即`Toast({type: 'name'})`的简写方式.
 
  如Toast.success('message')等价于`Toast({message: 'message', type: 'success'})`
+
+ > 注,`loading`默认duration为0,不关闭,需要指定时间或手动关闭
 
 ##### methods
 1. Toast.clearAll()
