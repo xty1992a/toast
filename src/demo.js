@@ -1,6 +1,7 @@
 // import Toast from '../lib/toast'
 // import '../lib/toast.css'
 import Toast from './package/main.ts'
+window.Toast = Toast
 
 const $ = e => document.querySelector(e);
 
@@ -9,14 +10,27 @@ $('#btn').addEventListener('click', function () {
 });
 $('#delay').addEventListener('click', function () {
   Toast({
-	message: 'hello world',
-	duration: 4000,
+    message: 'hello world',
+    duration: 4000,
   });
 });
 $('#modal').addEventListener('click', function () {
   Toast({
-	message: 'hello world',
-	mask: true,
+    message: 'hello world',
+    mask: true,
+  });
+});
+$('#type').addEventListener('click', function () {
+  Toast({
+    type: 'icon-music',
+    message: 'hello world',
+  });
+});
+$('#mount').addEventListener('click', function () {
+  Toast({
+    message: 'hello world',
+    mask: true,
+    mountTo: () => document.getElementById('box')
   });
 });
 
@@ -29,7 +43,7 @@ $('#error').addEventListener('click', function () {
 $('#loading').addEventListener('click', function () {
   const t = Toast.loading('hello world');
   setTimeout(() => {
-	t.clear();
+    t.clear();
   }, 1000)
 });
 

@@ -1,5 +1,6 @@
 import './index.less'
 
+// region types
 type ToastOption = string | managerType;
 
 interface managerType {
@@ -16,12 +17,18 @@ interface mountFn {
     (): Element
 }
 
+interface innerCreator {
+    (options: managerType): string
+}
+
 interface ToastFn {
     (opt: string | managerType): ToastManager;
 
     clear: clearFn,
     clearAll: Function,
     loading: aliasFn,
+    waring: aliasFn,
+    question: aliasFn,
     success: aliasFn,
     error: aliasFn,
 }
@@ -31,9 +38,11 @@ interface clearFn {
 }
 
 interface aliasFn {
-    (opt: ToastOption): ToastManager
+    (opt: string | managerType): ToastManager
 }
+// endregion
 
+// region vaiables
 const instances: ToastManager[] = [];
 let instance: null | ToastManager = null;
 let seed: number = 0;
@@ -48,6 +57,37 @@ const dftOptions: managerType = {
     seed: 0
 };
 
+const iconList = ['success', 'error', 'waring', 'question']
+
+// endregion
+
+// region tool fn
+const createText: innerCreator = (opt: managerType): string => `<div class="toast-text">${opt.message}</div>`
+const createIcon: innerCreator = (opt: managerType): string => {
+    let iconInclude = iconList.findIndex(it => it === opt.type) !== -1
+    let icon = iconInclude ? 'icon-' + opt.type : opt.type;
+    return `<div class="toast-with-icon">
+				<div class="toast__${opt.type} toast-icon">
+					<i class="iconfont ${icon}"></i>
+				</div>
+				<div class="toast-message">${opt.message}</div>
+			</div>`;
+}
+const createLoading: innerCreator = (opt: managerType): string => `<div class="toast-with-icon toast-loading">
+    <div class="spinner toast-icon">${createSpinner()}</div>
+    <div class="toast-message">${opt.message}</div>
+    </div>`
+const createSpinner: () => string = () => `<span class="van-loading__spinner van-loading__spinner--circular"><svg viewBox="25 25 50 50" class="van-loading__circular"><circle cx="50" cy="50" r="20" fill="none"></circle></svg></span>`
+const extendAlias: (privateOption: object) => aliasFn = (privateOption: object): aliasFn => (option: ToastOption): ToastManager => Toast({ ...fmtOpt(option), ...privateOption })
+const fmtOpt: (opt: ToastOption) => managerType = (opt: ToastOption): managerType => typeof opt === 'string' ? { ...dftOptions, message: opt, seed } : { ...dftOptions, ...opt, seed }
+const stopFn: (e: Event) => void = (e: Event): void => e.preventDefault()
+const stopMove: (el: Element) => void = (el: Element) => {
+    el.addEventListener('mousewheel', stopFn);
+    el.addEventListener('touchmove', stopFn);
+}
+// endregion
+
+// region class ToastManager
 class ToastManager {
     $options: managerType;
     $parent: Element;
@@ -75,6 +115,9 @@ class ToastManager {
     catchDom() {
         const el = this.$el;
         this.$modal = this.$options.mask ? el.getElementsByClassName('modal')[0] : null;
+        if (this.$modal) {
+            stopMove(this.$modal)
+        }
     }
 
     startTime() {
@@ -94,11 +137,12 @@ class ToastManager {
     }
 
     mount(parent: Element, inner: string) {
-        const modal = this.$options.mask ? '<div class="modal"></div>' : '';
+        const position = parent === document.body ? 'fixed' : 'absolute'
+        const modal = this.$options.mask ? `<div class="modal" style="position:${position}"></div>` : '';
         const el = this.$el = document.createElement('div');
         el.className = this.$options.className + ' x-toast';
         el.id = `toast${this.$options.seed}`;
-        el.innerHTML = `${modal}<div class="center">${inner}</div>`;
+        el.innerHTML = `${modal}<div class="center" style="position:${position}">${inner}</div>`;
 
         parent.appendChild(el);
         setTimeout(() => {
@@ -109,7 +153,7 @@ class ToastManager {
     }
 
     show() {
-        this.$el.classList.add('toast-show')
+        this.$el.classList.add('toast-show');
     }
 
     hide(callback: Function) {
@@ -126,36 +170,9 @@ class ToastManager {
 
 }
 
-// region createHtmlStr
-function createText(opt: managerType): string {
-    return `<div class="toast-text">${opt.message}</div>`
-}
-
-function createLoading(opt: managerType): string {
-    return `<div class="toast-with-icon toast-loading">
-				<div class="spinner toast-icon">${createSpinner()}</div>
-				<div class="toast-message">${opt.message}</div>
-			</div>
-`
-}
-
-function createIcon(opt: managerType): string {
-    let icon = 'icon-' + opt.type;
-    return `<div class="toast-with-icon">
-				<div class="${opt.type} toast-icon">
-					<i class="iconfont ${icon}"></i>
-				</div>
-				<div class="toast-message">${opt.message}</div>
-			</div>`;
-}
-
-function createSpinner(): string {
-    return `<span class="van-loading__spinner van-loading__spinner--circular"><svg viewBox="25 25 50 50" class="van-loading__circular"><circle cx="50" cy="50" r="20" fill="none"></circle></svg></span>`
-
-}
-
 // endregion
 
+// region export functions
 const Toast: ToastFn = function (opt: ToastOption): ToastManager {
     instance = new ToastManager(fmtOpt(opt));
     instances.push(instance);
@@ -163,40 +180,31 @@ const Toast: ToastFn = function (opt: ToastOption): ToastManager {
     return instance;
 };
 
-function fmtOpt(opt: ToastOption): managerType {
-    if (typeof opt === 'string') {
-        opt = {...dftOptions, message: opt, seed}
-    } else {
-        opt = {...dftOptions, ...opt, seed}
-    }
-    return opt
-}
-
-const clear: clearFn = function (seed: number): void {
-    let index = instances.findIndex(i => i.$options.seed === seed);
-    if (index < 0) return;
-    instances[index].clear();
-};
-const success: aliasFn = function (opt: ToastOption): ToastManager {
-    return Toast({...fmtOpt(opt), type: 'success'})
-};
-const error: aliasFn = function (opt: ToastOption): ToastManager {
-    return Toast({...fmtOpt(opt), type: 'error'})
-};
-const loading: aliasFn = function (opt: ToastOption): ToastManager {
-    const duration: number = typeof opt === 'string' ? 0 : opt.hasOwnProperty('duration') ? opt.duration : 0;
-    return Toast({...fmtOpt(opt), type: 'loading', duration})
-};
 const clearAll = function (): void {
     while (instances.length) {
         instances[0].clear();
     }
 };
 
-Toast.clear = clear;
+const clear: clearFn = (seed: number): void => {
+    let index = instances.findIndex(i => i.$options.seed === seed);
+    if (index < 0) return;
+    instances[index].clear();
+};
+
+// endregion
+
+// region Toast method
 Toast.clearAll = clearAll;
-Toast.success = success;
-Toast.error = error;
-Toast.loading = loading;
+Toast.clear = clear;
+
+// loading 时,duration默认为0
+Toast.loading = extendAlias({ type: 'loading', duration: 0 });
+Toast.success = extendAlias({ type: 'success' });
+Toast.error = extendAlias({ type: 'error' });
+Toast.question = extendAlias({ type: 'question' });
+Toast.waring = extendAlias({ type: 'waring' });
+
+// endregion
 
 export default Toast
