@@ -40,6 +40,10 @@ interface clearFn {
 interface aliasFn {
     (opt: string | managerType): ToastManager
 }
+
+interface extendFn {
+    (privateOption: object): aliasFn
+}
 // endregion
 
 // region vaiables
@@ -62,8 +66,8 @@ const iconList = ['success', 'error', 'waring', 'question']
 // endregion
 
 // region tool fn
-const createText: innerCreator = (opt: managerType): string => `<div class="toast-text">${opt.message}</div>`
-const createIcon: innerCreator = (opt: managerType): string => {
+const createText: innerCreator = opt => `<div class="toast-text">${opt.message}</div>`
+const createIcon: innerCreator = opt => {
     let iconInclude = iconList.findIndex(it => it === opt.type) !== -1
     let icon = iconInclude ? 'icon-' + opt.type : opt.type;
     return `<div class="toast-with-icon">
@@ -73,15 +77,15 @@ const createIcon: innerCreator = (opt: managerType): string => {
 				<div class="toast-message">${opt.message}</div>
 			</div>`;
 }
-const createLoading: innerCreator = (opt: managerType): string => `<div class="toast-with-icon toast-loading">
+const createLoading: innerCreator = opt => `<div class="toast-with-icon toast-loading">
     <div class="spinner toast-icon">${createSpinner()}</div>
     <div class="toast-message">${opt.message}</div>
     </div>`
 const createSpinner: () => string = () => `<span class="van-loading__spinner van-loading__spinner--circular"><svg viewBox="25 25 50 50" class="van-loading__circular"><circle cx="50" cy="50" r="20" fill="none"></circle></svg></span>`
-const extendAlias: (privateOption: object) => aliasFn = (privateOption: object): aliasFn => (option: ToastOption): ToastManager => Toast({ ...fmtOpt(option), ...privateOption })
-const fmtOpt: (opt: ToastOption) => managerType = (opt: ToastOption): managerType => typeof opt === 'string' ? { ...dftOptions, message: opt, seed } : { ...dftOptions, ...opt, seed }
-const stopFn: (e: Event) => void = (e: Event): void => e.preventDefault()
-const stopMove: (el: Element) => void = (el: Element) => {
+const extendAlias: extendFn = privateOption => option => Toast({ ...fmtOpt(option), ...privateOption })
+const fmtOpt: (opt: ToastOption) => managerType = opt => typeof opt === 'string' ? { ...dftOptions, message: opt, seed } : { ...dftOptions, ...opt, seed }
+const stopFn: (e: Event) => void = e => e.preventDefault()
+const stopMove: (el: Element) => void = el => {
     el.addEventListener('mousewheel', stopFn);
     el.addEventListener('touchmove', stopFn);
 }
@@ -173,7 +177,7 @@ class ToastManager {
 // endregion
 
 // region export functions
-const Toast: ToastFn = function (opt: ToastOption): ToastManager {
+const Toast: ToastFn = function (opt) {
     instance = new ToastManager(fmtOpt(opt));
     instances.push(instance);
     seed++;
@@ -186,7 +190,7 @@ const clearAll = function (): void {
     }
 };
 
-const clear: clearFn = (seed: number): void => {
+const clear: clearFn = seed => {
     let index = instances.findIndex(i => i.$options.seed === seed);
     if (index < 0) return;
     instances[index].clear();
