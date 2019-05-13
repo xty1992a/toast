@@ -11,7 +11,7 @@ const root = p => path.join(__dirname, '..', p);
 module.exports = merge(base, {
   mode: 'development',
   entry: {
-	app: root('src/demo.js'),
+	app: root('src/demo.ts'),
   },
   devServer: {
 	contentBase: path.resolve(__dirname, '..'),
