@@ -1,6 +1,10 @@
 @import "./icon.css";
 
 .x-toast {
+  * {
+    box-sizing: border-box;
+  }
+
   &.toast-show {
     .modal {
       opacity: 1;
@@ -36,7 +40,7 @@
     }
 
     .toast-with-icon {
-      width: 90px;
+      width: 120px;
       padding: 15px;
 
       .toast-icon {

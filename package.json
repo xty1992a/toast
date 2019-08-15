@@ -1,6 +1,6 @@
 {
   "name": "@redbuck/toast",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "drag to sort element",
   "main": "lib/toast.js",
   "unpkg": [
